@@ -34,7 +34,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="GameXD.lib winmm.lib"
-				OutputFile="$(OutDir)/Game.exe"
+				OutputFile="$(OutDir)/Game_Debug.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="../external/GameX/libs/"
 				IgnoreDefaultLibraryNames="LIBCD"
@@ -83,7 +83,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="GameX.lib winmm.lib"
-				OutputFile="$(OutDir)/Game.exe"
+				OutputFile="$(OutDir)/Game_Release.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="../external/GameX/libs/"
 				IgnoreDefaultLibraryNames="LIBC"
