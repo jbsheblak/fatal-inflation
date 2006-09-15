@@ -10,6 +10,8 @@
 #include <windows.h>
 #include <stdio.h>
 
+//hello.  roffel mayo
+
 namespace jbsCommon
 {
 
