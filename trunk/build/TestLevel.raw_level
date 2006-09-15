@@ -1,0 +1,6 @@
+#Begin TestLevel
+Background = testBackground.tga
+Music = test.mp3
+ArrowSet = TEMP_EntitySet.as
+TimeLength = 15.0f
+#End

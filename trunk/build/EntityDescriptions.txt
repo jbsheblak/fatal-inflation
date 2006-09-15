@@ -1,0 +1,29 @@
+#Begin FireArrow
+BaseEntity = Arrow
+Velocity = 75 0
+GenerationSound = gen.wav
+#End
+
+#Begin IceArrow
+BaseEntity = Arrow
+Velocity = 40 10
+#End
+
+#Begin GreenArrow
+BaseEntity = TimedArrow
+Velocity = 50 -15
+Lifetime = 20.0f
+#End
+
+#Begin Ball
+BaseEntity = Ball
+Velocity = 50 -15
+RotationSpeed = 0.5f
+#End
+
+#Begin Beam
+BaseEntity = Beam
+FireFrequency = 2.0f
+FireDuration = 0.5f
+#End
+
