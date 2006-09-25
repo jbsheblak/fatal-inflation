@@ -235,6 +235,12 @@
 			RelativePath="..\source\GameXExt.h">
 		</File>
 		<File
+			RelativePath="..\source\Gui.cpp">
+		</File>
+		<File
+			RelativePath="..\source\Gui.h">
+		</File>
+		<File
 			RelativePath="..\source\Log.cpp">
 		</File>
 		<File

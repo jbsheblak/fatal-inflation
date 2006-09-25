@@ -124,7 +124,8 @@ namespace Game
 
 		// draw selected image
 		if( mSelectedImage )
-		{
+		{		
+			
 			GameX.DrawImage( mSelectedImage,
 							 kMouseX - mSelectedImage->GetWidth()/2,
 							 kMouseY - mSelectedImage->GetHeight()/2,
@@ -162,8 +163,11 @@ namespace Game
 		if( mShowHelp )
 		{
 			uint32_t yoffset = 200;
+			TextDraw( "LClick : Select Arrow, Place Arrow" );
+			TextDraw( "RClick : Unselect Arrow Type" );
 			TextDraw( "SPACE : Save current entity set to file" );
-			TextDraw( "DEL + LMouse : Delete entity from editor" );
+			TextDraw( "Selection + Delete : Delete entity from editor" );
+			TextDraw( "+/- Adjust arrow rotation" );
 			TextDraw( "R : Reset entity set" );
 			TextDraw( "B : Toggle bounding boxes" );
 			TextDraw( "H : Toggle this help" );
