@@ -370,6 +370,14 @@ namespace Game
 	// arrow description file that specifies properties for base arrow variants
 	namespace EntityDescFile
 	{
+		struct EntityDescFileHeader
+		{		
+			F32			 mVersion;
+			uint32_t	 mFlags;
+			uint32_t	 mReserved1;
+			uint32_t	 mReserved2;
+		};
+
 		bool Export( const char* szFile, EntityDescMap* descMap )
 		{
 			if( !szFile || !descMap || !descMap->size() )
@@ -378,6 +386,14 @@ namespace Game
             FILE* file = fopen( szFile, "w+b" );
 			if( !file )
 				return false;
+
+			EntityDescFileHeader header;
+			header.mFlags = 0;
+			header.mReserved1 = 0;
+			header.mReserved2 = 0;
+			header.mVersion = 1.0f;
+
+			fwrite( &header, sizeof(EntityDescFileHeader), 1, file );
 
 			uint32_t descCount = (uint32_t)descMap->size();
 			fwrite( &descCount, sizeof(uint32_t), 1, file );
@@ -427,6 +443,10 @@ namespace Game
 		{
 			if( !stream || !streamSize || !descMap )
 				return false;
+
+			EntityDescFileHeader* header;
+			header = (EntityDescFileHeader*)stream;
+			stream += sizeof(EntityDescFileHeader);			
 
 			uint32_t descCount = FileUtils::Read<uint32_t>( stream );
 			for( uint32_t d = 0; d < descCount; ++d )
@@ -526,12 +546,27 @@ namespace Game
 	// a level file containing an arrow set and other features
 	namespace LevelFile
 	{
+		struct LevelFileHeader
+		{		
+			F32			 mVersion;
+			uint32_t	 mFlags;
+			uint32_t	 mReserved1;
+			uint32_t	 mReserved2;
+		};
+
 		bool Export( const char* szFile, const LevelEntry& entry )
 		{
 			FILE* file = fopen( szFile, "w+b" );
 			if( !file )
 				return false;
 
+			LevelFileHeader header;
+			header.mFlags = 0;
+			header.mReserved1 = 0;
+			header.mReserved2 = 0;
+			header.mVersion = 1.0f;
+            
+			fwrite( &header, sizeof(LevelFileHeader), 1, file );
 			FileUtils::WriteString( entry.mName, file );
 			FileUtils::WriteString( entry.mBackground, file );
 			FileUtils::WriteString( entry.mMusic, file );
@@ -566,6 +601,9 @@ namespace Game
 		{
 			if( !stream || !streamSize )
 				return false;
+
+			LevelFileHeader* header = (LevelFileHeader*)stream;
+			stream += sizeof(LevelFileHeader);
 
 			FileUtils::ReadString( entry.mName, stream );
 			FileUtils::ReadString( entry.mBackground, stream );
