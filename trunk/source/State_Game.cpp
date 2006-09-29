@@ -14,6 +14,8 @@
 #include "ResourceCache.h"
 #include <string>
 
+#include "Util/Tuner.h"
+
 namespace Game
 {
 	const char* kLevels [] = { "TestLevel",
@@ -88,6 +90,12 @@ namespace Game
 		if( GameX.IsKeyDown( KEY_BACKSPACE ) )
 		{
 			SMachine.RequestStateChange( "StartScreen" );
+		}
+
+		//reload tuners
+		if( GameX.IsKeyDown( KEY_F5 ) )
+		{
+			gTuner.LoadTuners( "tuners.txt" );
 		}
 
 		if( GameX.IsKeyDown( KEY_UP ) )
