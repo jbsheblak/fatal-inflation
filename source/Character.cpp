@@ -10,6 +10,8 @@
 #include "GameXExt.h"
 #include "GameConstants.h"
 
+#include "Util/Tuner.h"
+
 namespace Game
 {
 	bool Character::Init( int32_t* pos )
@@ -88,17 +90,18 @@ namespace Game
 	{
 		if( mState == kState_Alive )
 		{
-			F32 kGravity = 10.0f;
-			F32 inflateDelta = 1.0f - mBalloonInflation;
+			F32 kGravity = 10.0f;		
 
-			int32_t dy = (int32_t)(kGravity * inflateDelta);
+			const F32 kBuoyancy = gTuner.GetFloat( "kBuoyancy" );
+
+			int32_t dy = (int32_t)(kGravity + mBalloonInflation * kBuoyancy );
 			if( !dy ) dy += 2;
 			MoveByDelta( 0, dy );
 		}
 	}
 	
 	void Character::Draw()
-	{
+	{	
 		int32_t width  = (int32_t)(mBalloonImg->GetWidth()  * mBalloonInflation);
 		int32_t height = (int32_t)(mBalloonImg->GetHeight() * mBalloonInflation);
 

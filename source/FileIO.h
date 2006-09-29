@@ -20,6 +20,12 @@ namespace Game
 {	
 	class Arrow;	
 
+	namespace FileUtils
+	{
+		bool GetNextLine( std::string& line, FILE*& file );
+	};	
+
+
 	// A file containing a set of timed entity placements
 	namespace EntitySetFile
 	{

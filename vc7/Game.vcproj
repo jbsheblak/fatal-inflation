@@ -210,6 +210,16 @@
 				RelativePath="..\source\Character.h">
 			</File>
 		</Filter>
+		<Filter
+			Name="Util"
+			Filter="">
+			<File
+				RelativePath="..\source\Util\Tuner.cpp">
+			</File>
+			<File
+				RelativePath="..\source\Util\Tuner.h">
+			</File>
+		</Filter>
 		<File
 			RelativePath="..\source\Algorithms.cpp">
 		</File>
