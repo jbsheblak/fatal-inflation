@@ -52,6 +52,8 @@ namespace Game
 		Character					mPlayer;
 
 		uint32_t					mCurLevel;
+
+		GameSaveFile::SaveFile	    mSaveFile;
 	};	
 	
 }; //end Game

@@ -16,6 +16,7 @@ namespace Game
 	extern const uint32_t			kWindowHeight;
 	extern const char*				kWindowName  ;
 	extern const char*				kGamePackFile;
+	extern const char*              kSaveFile;
 	extern const bool				kFullscreen  ;
 	extern const bool				kUseVSync	 ;
 	extern const bool				kResizeable  ;
