@@ -63,8 +63,8 @@ namespace Game
 		if( mState != kState_Alive )
 			return; 
 
-		const F32 kInflationMin = 0.2f;
-		const F32 kInflationMax = 10.0f;
+		const F32 kInflationMin = 0.25f;
+		const F32 kInflationMax = 1.0f;
 
 		mBalloonInflation += amt;
 
