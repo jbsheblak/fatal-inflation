@@ -91,13 +91,17 @@ namespace Game
 
 		for( uint32_t i = 0; i < str.length(); ++i )
 		{
+			//check for comments
+			if( i+1 < str.length() && str[i] == '/' && str[i+1] == '/' )
+				break;
+
 			if( str[i] == delim && c != 0 )
 			{
 				buffer[c] = '\0';
 				tokenArray.push_back( std::string(buffer) );
 				c = 0;
 			}
-			else if( str[i] != delim && str[i] != '\n' )
+			else if( str[i] != delim && str[i] != '\n' && str[i] != '\t' && str[i] != '\r' )
 			{
 				buffer[c] = str[i];
 				++c;

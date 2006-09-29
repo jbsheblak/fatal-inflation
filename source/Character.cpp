@@ -65,8 +65,8 @@ namespace Game
 		if( mState != kState_Alive )
 			return; 
 
-		const F32 kInflationMin = 0.25f;
-		const F32 kInflationMax = 1.0f;
+		const F32 kInflationMin = gTuner.GetFloat( "kInflationMin" );
+		const F32 kInflationMax = gTuner.GetFloat( "kInflationMax" );
 
 		mBalloonInflation += amt;
 
