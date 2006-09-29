@@ -16,11 +16,16 @@
 #include "State_LoadGame.h"
 #include "State_EditMode.h"
 
+#include "Util/Tuner.h"
+
 using namespace Game;
 
 
 void GameInit()
-{
+{	
+	// load our tuner variables
+	gTuner.LoadTuners( "tuners.txt" );
+
 	// setup init flags
 	uint32_t flags = VIDEO_32BIT;
 
