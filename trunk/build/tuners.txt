@@ -1,1 +1,6 @@
+// balloon tuners
+kInflationMin = 0.25f
+kInflationMax = 1.0f
+kInflationRate = 0.1f
+kMoveAmt = 5			// x-movement velocity
 kBuoyancy = -15.0f

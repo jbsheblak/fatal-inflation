@@ -76,8 +76,6 @@ namespace Game
 
 	void State_Game::Handle()
 	{
-		const int32_t kMoveAmt = 5;
-
 		// handle input
 		if( GameX.IsKeyDown( KEY_SPACE ) )
 		{
@@ -99,16 +97,28 @@ namespace Game
 		}
 
 		if( GameX.IsKeyDown( KEY_UP ) )
-			mPlayer.InflateBalloon( 0.1f );
+		{
+			const F32 kInflationRate = gTuner.GetFloat( "kInflationRate" );
+			mPlayer.InflateBalloon( kInflationRate );
+		}
 
 		if( GameX.IsKeyDown( KEY_DOWN ) )
-			mPlayer.InflateBalloon( -0.1f );
+		{
+			const F32 kInflationRate = gTuner.GetFloat( "kInflationRate" );
+			mPlayer.InflateBalloon( -kInflationRate );
+		}
 
 		if( GameX.IsKeyDown( KEY_LEFT ) )
+		{
+			const int32_t kMoveAmt = gTuner.GetInt( "kMoveAmt" );
 			mPlayer.MoveByDelta( -kMoveAmt, 0 );
+		}
 
 		if( GameX.IsKeyDown( KEY_RIGHT ) )
+		{
+			const int32_t kMoveAmt = gTuner.GetInt( "kMoveAmt" );
 			mPlayer.MoveByDelta( kMoveAmt, 0 );		
+		}
 
 		// update things
 		Entity* newEntity;
