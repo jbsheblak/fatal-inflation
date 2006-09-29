@@ -12,6 +12,8 @@ namespace Game
 {
 	bool Tuner::LoadTuners( const char* szFile )
 	{
+		mTunerVariables.clear();
+
 		FILE* file = fopen( szFile, "r+t" );
 		if( !file )
 			return false;
