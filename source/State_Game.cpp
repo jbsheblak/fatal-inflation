@@ -17,7 +17,7 @@
 namespace Game
 {
 	const char* kLevels [] = { "TestLevel",
-							   "TestLevel2" };
+							   "TestLevel2" };	
 
 	const uint32_t kNumLevels = 2;
 
@@ -31,6 +31,10 @@ namespace Game
 	{
 		mBackground = NULL;	
 		mLevelEndTime = -1.0f;		
+
+		// load the save file
+		memset( &mSaveFile, 0, sizeof(GameSaveFile::SaveFile) );
+		GameSaveFile::Import( kSaveFile, mSaveFile );
 
 		// load our data
 		LoadEntityDesc();
@@ -55,6 +59,12 @@ namespace Game
 
 		mActiveEntities.clear();
 		DestroyEntityDescMap( &mEntityDescMap );
+
+		// save the player settings
+		if( mCurLevel > mSaveFile.mCompletedLevels )
+			mSaveFile.mCompletedLevels = mCurLevel;
+
+		GameSaveFile::Export( kSaveFile, mSaveFile );
 
 #if PLAY_MUSIC
 		if( GameX.IsMusicPlaying( &mMusic ) )

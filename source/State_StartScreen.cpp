@@ -37,6 +37,10 @@ namespace Game
 		gEditRect[1] = gStartRect[3] + 10;
 		gEditRect[2] = gEditRect[0] + mEditButton->GetWidth();
 		gEditRect[3] = gEditRect[1] + mEditButton->GetHeight();
+
+		// load save file to see how many levels have been completed
+		memset( &mSaveFile, 0, sizeof(GameSaveFile::SaveFile) );
+		GameSaveFile::Import( kSaveFile, mSaveFile );
 	}
 
 	void State_StartScreen::Exit()
@@ -82,6 +86,11 @@ namespace Game
 #if ENABLE_EDIT
 		GameX.DrawImage( mEditButton, gEditRect[0], gEditRect[1] );
 #endif
+
+		char buffer[256];
+		sprintf( buffer, "Levels Completed: %i", (int32_t)mSaveFile.mCompletedLevels );
+		GameX.DrawText( 20, 20, buffer, 255, 0, 0 );
+
 	}
 
 }; // end Game

@@ -126,6 +126,19 @@ namespace Game
 		bool Export( const char* szFile, ImageEntryList& list );
 		bool Import( uint8_t* stream, uint32_t streamSize, ImageEntryList& list );
 	};
+
+	namespace GameSaveFile
+	{
+		// to be filled eventually. versioned in the read/write code
+		struct SaveFile
+		{
+			uint32_t	mCompletedLevels;	
+		};
+
+		bool Export( const char* szFile, const SaveFile& saveFile );
+		bool Import( const char* szFile, SaveFile& saveFile );
+		bool Import( uint8_t* stream, uint32_t streamSize, SaveFile& saveFile );
+	};
 	
 }; //end Game
 

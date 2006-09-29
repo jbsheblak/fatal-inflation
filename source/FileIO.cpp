@@ -923,5 +923,61 @@ namespace Game
 		}
 
 	}; // end ImageFile
+
+	namespace GameSaveFile
+	{
+		struct Header
+		{
+			float		mVersion;
+			uint32_t	mFlags;
+			uint32_t	mReserved1;
+			uint32_t	mReserved2;
+		};
+
+		bool Export( const char* szFile, const SaveFile& saveFile )
+		{
+			FILE* file = fopen(szFile, "w+b" );
+			if( !file )
+				return false;
+
+			Header h;
+			h.mVersion = 1.0f;
+			h.mFlags   = 0;
+			h.mReserved1 = 0;
+			h.mReserved2 = 0;
+
+			fwrite( &h, sizeof(Header), 1, file );
+			fwrite( &saveFile, sizeof(SaveFile), 1, file );
+
+			fclose(file);
+			return true;
+		}
+
+		bool Import( const char* szFile, SaveFile& saveFile )
+		{
+			uint32_t size;
+			uint8_t* buffer = NULL;
+			size = jbsCommon::Algorithm::ReadFileIntoBuffer( szFile, buffer );
+			if( !buffer )
+				return false;
+
+			bool import = Import( buffer, size, saveFile );
+			delete [] buffer;
+			return import;
+		}
+			
+		bool Import( uint8_t* stream, uint32_t streamSize, SaveFile& saveFile )
+		{
+			if( !stream )
+				return false;
+
+			Header* pHeader = (Header*)stream;
+			stream += sizeof(Header);
+
+			saveFile.mCompletedLevels = FileUtils::Read<uint32_t>(stream);
+			return true;
+		}
+
+	}; //end GameSaveFile
 	
 }; //end Game

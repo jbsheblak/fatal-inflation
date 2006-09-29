@@ -12,6 +12,7 @@
 #include "Types.h"
 #include "gamex.hpp"
 #include "MasterFile.h"
+#include "FileIO.h"
 
 namespace Game
 {
@@ -27,6 +28,9 @@ namespace Game
 		ImageX*				mStartButton;
 		ImageX*				mEditButton;
 		ImageX*				mLogo;
+
+		GameSaveFile::SaveFile mSaveFile;
+
 	};	
 	
 }; //end Game
