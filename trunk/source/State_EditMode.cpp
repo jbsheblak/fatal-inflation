@@ -27,26 +27,6 @@
 
 namespace Game
 {
-	void GuiElement::Init( ImageX* img, int32_t x0, int32_t y0, int32_t x1, int32_t y1 )
-	{
-		mpImg = img;
-		mBounds[0] = x0;
-		mBounds[1] = y0;
-		mBounds[2] = x1;
-		mBounds[3] = y1;
-	}
-
-	bool GuiElement::CheckClick( int32_t x, int32_t y )
-	{
-		return x >= mBounds[0] && x < mBounds[2] && y >= mBounds[1] && y < mBounds[3];
-	}
-	
-	bool GuiElement::Draw()
-	{
-		GameX.DrawImage( mpImg, mBounds[0], mBounds[1] );
-		return true;
-	}	
-
 
 	// edit mode tuners
 	const F32 State_EditMode::kImageHeight	     = 48.0f;
@@ -75,7 +55,7 @@ namespace Game
 
 		// load gui images
 		mBack = GetImage( "textures/back.tga" );		
-		mBackGui.Init( mBack, kWindowWidth - mBack->GetWidth(), 0, kWindowWidth, mBack->GetWidth() );		
+//		mBackGui.Init( mBack, kWindowWidth - mBack->GetWidth(), 0, kWindowWidth, mBack->GetWidth() );		
 
 		mEditBar = GetImage( "textures/editBar.tga" );		
 
@@ -309,10 +289,10 @@ namespace Game
 				}				
 			}
 
-			if( mBackGui.CheckClick( x, y ) )		
-			{
-				SMachine.RequestStateChange( "LoadGame" );
-			}
+			//if( mBackGui.CheckClick( x, y ) )		
+			//{
+			//	SMachine.RequestStateChange( "LoadGame" );
+			//}
 		}
 
 		const bool kRMouseClicked = GameX.GetMouseClick( MOUSE_RIGHT );

@@ -47,7 +47,7 @@ namespace Game
 
 		ImageX*						mBackground;
 		ImageX*						mTimerImg;
-		MusicX						mMusic;
+		MusicX*						mpMusic;
 
 		Character					mPlayer;
 

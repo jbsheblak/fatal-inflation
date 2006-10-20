@@ -9,34 +9,109 @@
 
 #include "GameXExt.h"
 #include "GameConstants.h"
+#include "Gui.h"
+#include "Action.h"
 
 namespace Game
 {
-	static int32_t gStartRect[4];
-	static int32_t gEditRect[4];
-	static int32_t gLogoRect[4];
-
 	void State_StartScreen::Enter()
 	{
 		// load button images
-		mLogo			= GetImage( "textures/logo.tga" );		
-		mStartButton	= GetImage( "textures/start.tga" );
-		mEditButton		= GetImage( "textures/edit.tga" );		
+		ImageX* logo  = GetImage( "textures/logo.tga" );		
+		ImageX* start = GetImage( "textures/start.tga" );
+		ImageX* edit  = GetImage( "textures/edit.tga" );
+		ImageX* cont  = GetImage( "textures/continue.tga" );
+		ImageX* options = GetImage( "textures/options.tga" );
+		ImageX* quit = GetImage( "textures/quit.tga" );
 
-		gLogoRect[0] = (kWindowWidth - mLogo->GetWidth())/2;
-		gLogoRect[1] = 50;
-		gLogoRect[2] = gLogoRect[0] + mLogo->GetWidth();
-		gLogoRect[3] = gLogoRect[1] + mLogo->GetHeight();
+		// setup gui
 
-		gStartRect[0] = (kWindowWidth - mStartButton->GetWidth())/2;
-		gStartRect[1] = gLogoRect[3] + 10;
-		gStartRect[2] = gStartRect[0] + mStartButton->GetWidth();
-		gStartRect[3] = gStartRect[1] + mStartButton->GetHeight();
+		// options gui
+		GuiListContainer*	options_container = new GuiListContainer; 
+		options_container->SetPosition( jbsCommon::Vec2i(300,300) );
+		options_container->SetVisible(true);
+		options_container->SetExtent( jbsCommon::Vec2i( 200, 200 ) );
+		options_container->SetSpacing(10);
 
-		gEditRect[0] = (kWindowWidth - mStartButton->GetWidth())/2;
-		gEditRect[1] = gStartRect[3] + 10;
-		gEditRect[2] = gEditRect[0] + mEditButton->GetWidth();
-		gEditRect[3] = gEditRect[1] + mEditButton->GetHeight();
+		GuiImageControl* options_image = new GuiImageControl;
+		options_image->SetPosition( jbsCommon::Vec2i( 0, 0 ) );
+		options_image->SetImage( logo );
+		options_image->SetVisible( true );
+		options_image->SetExtentFromImages();
+
+		options_container->AddChild(options_image);
+
+		//main container
+		GuiContainer* mainContainer = new GuiContainer;
+		mainContainer->SetPosition( jbsCommon::Vec2i(0,0) );
+		mainContainer->SetVisible(true);
+		mainContainer->SetExtent( jbsCommon::Vec2i( kWindowWidth, kWindowHeight ) );
+
+		GuiListContainer*	gc = new GuiListContainer; 
+		gc->SetPosition( jbsCommon::Vec2i(0,0) );
+		gc->SetVisible(true);
+		gc->SetExtent( jbsCommon::Vec2i( kWindowWidth, kWindowHeight ) );
+		gc->SetSpacing(10);
+
+		GuiImageControl* guiLogo = new GuiImageControl;
+		guiLogo->SetImage( logo );
+		guiLogo->SetPosition( jbsCommon::Vec2i( 0, 50 ) );
+		guiLogo->SetExtentFromImages();
+		guiLogo->SetVisible(true);		
+		guiLogo->SetAlignment( jbsCommon::Vec2<GuiElement::Alignment>( GuiElement::kAlign_HorizCenter,
+																  GuiElement::kAlign_RelativeTop ) );
+
+		GuiButtonControl* sb = new ActionButton( new StateChangeAction("Game") );
+		sb->SetImages( start, start, start );
+		sb->SetPosition(  jbsCommon::Vec2i(0,0) );
+		sb->SetExtentFromImages();
+		sb->SetVisible(true);
+		sb->SetAlignment( jbsCommon::Vec2<GuiElement::Alignment>( GuiElement::kAlign_HorizCenter,
+																  GuiElement::kAlign_RelativeTop ) );
+
+		GuiButtonControl* eb = new ActionButton( new StateChangeAction("EditMode") );
+		eb->SetImages( edit, edit, edit );
+		eb->SetPosition( jbsCommon::Vec2i(0,0) );
+		eb->SetExtentFromImages();
+		eb->SetVisible(true);
+		eb->SetAlignment( jbsCommon::Vec2<GuiElement::Alignment>( GuiElement::kAlign_HorizCenter,
+																  GuiElement::kAlign_RelativeTop ) );
+
+		GuiButtonControl* ob = new ActionButton( new ToggleVisible(options_container) );
+		ob->SetImages( options, options, options );
+		ob->SetPosition( jbsCommon::Vec2i(0,0) );
+		ob->SetExtentFromImages();
+		ob->SetVisible(true);
+		ob->SetAlignment( jbsCommon::Vec2<GuiElement::Alignment>( GuiElement::kAlign_HorizCenter,
+																  GuiElement::kAlign_RelativeTop ) );
+
+		GuiButtonControl* ct = new ActionButton( new StateChangeAction("EditMode") );
+		ct->SetImages( cont, cont, cont );
+		ct->SetPosition( jbsCommon::Vec2i(0,0) );
+		ct->SetExtentFromImages();
+		ct->SetVisible(true);
+		ct->SetAlignment( jbsCommon::Vec2<GuiElement::Alignment>( GuiElement::kAlign_HorizCenter,
+																  GuiElement::kAlign_RelativeTop ) );
+
+		GuiButtonControl* qt = new ActionButton( new ActionQuit );
+		qt->SetImages( quit, quit, quit );
+		qt->SetPosition( jbsCommon::Vec2i(0,0) );
+		qt->SetExtentFromImages();
+		qt->SetVisible(true);
+		qt->SetAlignment( jbsCommon::Vec2<GuiElement::Alignment>( GuiElement::kAlign_HorizCenter,
+																  GuiElement::kAlign_RelativeTop ) );
+
+		gc->AddChild(guiLogo);
+		gc->AddChild(sb);
+		gc->AddChild(eb);
+		gc->AddChild(ob);
+		gc->AddChild(ct);
+		gc->AddChild(qt);
+
+		mainContainer->AddChild(gc);
+		mainContainer->AddChild(options_container);
+
+		mGui = mainContainer;
 
 		// load save file to see how many levels have been completed
 		memset( &mSaveFile, 0, sizeof(GameSaveFile::SaveFile) );
@@ -44,7 +119,8 @@ namespace Game
 	}
 
 	void State_StartScreen::Exit()
-	{		
+	{	
+		delete mGui;
 	}
 
 	void State_StartScreen::Handle()
@@ -60,37 +136,21 @@ namespace Game
 			const int32_t x = GameX.GetMouseX();
 			const int32_t y = GameX.GetMouseY();
 
-			if( x >= gStartRect[0] && x <= gStartRect[2] &&
-				y >= gStartRect[1] && y <= gStartRect[3] )
-			{			
-				//change state
-				SMachine.RequestStateChange( "Game" );
-			}
+			jbsCommon::Vec2i pos( x, y );
 
-#if ENABLE_EDIT
-			if( x >= gEditRect[0] && x <= gEditRect[2] &&
-				y >= gEditRect[1] && y <= gEditRect[3] )
-			{			
-				//change state
-				SMachine.RequestStateChange( "EditMode" );
-			}
-#endif
+			mGui->OnClick(pos);
 		}
 
 		GameX.ClearScreen();
 
-		//draw button		
-		GameX.DrawImage( mLogo, gLogoRect[0], gLogoRect[1] );
-		GameX.DrawImage( mStartButton, gStartRect[0], gStartRect[1] );
-		
-#if ENABLE_EDIT
-		GameX.DrawImage( mEditButton, gEditRect[0], gEditRect[1] );
-#endif
+		// draw gui
+		mGui->Draw();
+		mGui->DrawBounds();
 
+		// draw text
 		char buffer[256];
 		sprintf( buffer, "Levels Completed: %i", (int32_t)mSaveFile.mCompletedLevels );
 		GameX.DrawText( 20, 20, buffer, 255, 0, 0 );
-
 	}
 
 }; // end Game

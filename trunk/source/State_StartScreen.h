@@ -13,7 +13,7 @@
 #include "gamex.hpp"
 #include "MasterFile.h"
 #include "FileIO.h"
-
+#include "Gui.h"
 namespace Game
 {
 	class State_StartScreen : public State
@@ -25,10 +25,23 @@ namespace Game
 
 	private:
 
-		ImageX*				mStartButton;
-		ImageX*				mEditButton;
-		ImageX*				mLogo;
+		class StartButton : public GuiButtonControl
+		{
+		public:
+			void OnClick( const jbsCommon::Vec2i& pos );
+		};
 
+		class EditButton : public GuiButtonControl
+		{
+		public:
+			void OnClick( const jbsCommon::Vec2i& pos );
+		};
+
+
+
+	private:
+		
+		GuiElement*			mGui;
 		GameSaveFile::SaveFile mSaveFile;
 
 	};	

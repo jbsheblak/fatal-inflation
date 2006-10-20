@@ -13,63 +13,34 @@
 
 namespace Game
 {
-	GuiElement::~GuiElement()
-	{
-		for( uint32_t i = 0; i < mChildren.size(); ++i )
-			delete mChildren[i];
-	}
+	std::map< std::string, GuiElement* > GuiElement::sGuiRegistry;
 
-	GuiElement::GuiElement() : mpParent(NULL)
-						     , mpImageNormal(NULL)
-							 , mpImageOver(NULL)
-							 , mpImageDepressed(NULL)
+	GuiElement::GuiElement() : mpParent(NULL)						     
 							 , mVisible(false)
-							 , mState( kState_Normal )
-							 , mAlignX( kAlign_RelativeLeft )
-							 , mAlignY( kAlign_RelativeTop )
+							 , mState( kState_Normal )							 
 	{
-		memset( mPos, 0, sizeof(int32_t)*2 );
-	}
+		mAlign.x = kAlign_RelativeLeft;
+		mAlign.y = kAlign_RelativeTop;
+	}	
 	
-	void GuiElement::SetImages( ImageX* normal, ImageX* mouseOver, ImageX* mouseClicked )
-	{
-		mpImageNormal			= normal;
-		mpImageOver				= mouseOver;
-		mpImageDepressed		= mouseClicked;
-	}
-
 	void GuiElement::SetParent( GuiElement* elem )
 	{
 		mpParent = elem;
 	}
 
-	void GuiElement::SetPosition( int32_t x, int32_t y )
+	void GuiElement::SetPosition( const jbsCommon::Vec2i& pos )
 	{
-		mPos[0] = x;
-		mPos[1] = y;
+		mPosition = pos;
 	}
 
-	void GuiElement::SetExtent( int32_t eX, int32_t eY )
+	void GuiElement::SetExtent( const jbsCommon::Vec2i& extent )
 	{
-		mExtent[0] = eX;
-		mExtent[1] = eY;
+		mExtent = extent;		
 	}
 
-	void GuiElement::SetExtentFromImages()
+	void GuiElement::SetAlignment( const jbsCommon::Vec2<Alignment>& align )
 	{
-		if( mpImageNormal )
-		{
-			SetExtent( mpImageNormal->GetWidth(), mpImageNormal->GetHeight() );
-		}
-	}
-
-	void GuiElement::SetAlignment( Alignment align )
-	{
-		if( align <= kAlign_VertCenter )
-			mAlignY = align;
-
-		else
-			mAlignX = align;
+		mAlign = align;		
 	}
 
 	void GuiElement::SetVisible( bool visible )
@@ -83,21 +54,20 @@ namespace Game
 		if( !mVisible )
 			return true;
 
-		//draw ourself, then draw children
-		BaseBoundsDraw();
-
-		std::vector<GuiElement*>::iterator itr;
-		for( itr = mChildren.begin(); itr != mChildren.end(); ++itr )
-		{
-			(*itr)->Draw();
-		}
-
 		return true;
 	}
 
-	void GuiElement::AddChild( GuiElement* child )
+	bool GuiElement::DrawBounds()
 	{
-		mChildren.push_back(child);
+		if( IsVisible() )
+		{
+			BoundingBoxi bbox = GetBounds();
+			GameX.DrawLine( ColorX(255,0,0), bbox.mX, bbox.mY, bbox.mX + bbox.mWidth, bbox.mY );
+			GameX.DrawLine( ColorX(255,0,0), bbox.mX + bbox.mWidth, bbox.mY, bbox.mX + bbox.mWidth, bbox.mY + bbox.mHeight );
+			GameX.DrawLine( ColorX(255,0,0), bbox.mX + bbox.mWidth, bbox.mY + bbox.mHeight, bbox.mX, bbox.mY + bbox.mHeight );
+			GameX.DrawLine( ColorX(255,0,0), bbox.mX, bbox.mY + bbox.mHeight, bbox.mX, bbox.mY );
+		}
+		return true;
 	}
 
 	GuiElement::State GuiElement::GetState()
@@ -105,67 +75,79 @@ namespace Game
 		return mState;
 	}
 
-	// gets the screenspace x
-	int32_t	GuiElement::GetX()
+	// gets the screenspace position	
+	jbsCommon::Vec2i GuiElement::GetPosition()
 	{
-		int32_t px  = 0;		
-		int32_t peX = kWindowWidth;		
+		jbsCommon::Vec2i pos;
+		jbsCommon::Vec2i ext = GetExtent();
+		jbsCommon::Vec2i parentPos( 0, 0 );
+		jbsCommon::Vec2i parentExt( kWindowWidth, kWindowHeight );		
 
 		if( mpParent )
 		{
-			px  = mpParent->GetX();			
-			peX = mpParent->GetExtentX();			
+			parentPos = mpParent->GetPosition();
+			parentExt = mpParent->GetExtent();			
 		}
 
-		switch( mAlignX )
+		switch( mAlign.x )
 		{		
-		case kAlign_Left:		   return px;
-		case kAlign_Right:		   return px + peX - GetExtentX();
-		case kAlign_RelativeLeft:  return px + mPos[0];
-		case kAlign_RelativeRight: return px + peX - GetExtentX() - mPos[0];
-		case kAlign_HorizCenter:   return px + (peX - GetExtentX())/2;
-		default: assert(false); return -1;
-		}		
-	}
-
-	// gets the screenspace y
-	int32_t	GuiElement::GetY()
-	{
-		int32_t py  = 0;		
-		int32_t peY = kWindowHeight;
-
-		if( mpParent )
-		{
-			py  = mpParent->GetY();			
-			peY = mpParent->GetExtentY();
+		case kAlign_Left:		   pos.x = parentPos.x; break;
+		case kAlign_Right:		   pos.x = parentPos.x + parentExt.x - ext.x; break;
+		case kAlign_RelativeLeft:  pos.x = parentPos.x + mPosition.x; break;
+		case kAlign_RelativeRight: pos.x = parentPos.x + parentExt.x - ext.x - mPosition.x; break;
+		case kAlign_HorizCenter:   pos.x = parentPos.x + (parentExt.x - ext.x)/2; break;
+		default: assert(false);
 		}
 
-		switch( mAlignY )
+		switch( mAlign.y )
 		{		
-		case kAlign_Top:				return py;
-		case kAlign_Bottom:				return py + peY - GetExtentY();
-		case kAlign_RelativeTop:		return py + mPos[1];
-		case kAlign_RelativeBottom:		return py + peY - GetExtentY() - mPos[1];
-		case kAlign_VertCenter:			return py + (peY - GetExtentY())/2;
-		default: assert(false); return -1;
-		}	
+		case kAlign_Top:				pos.y = parentPos.y; break;
+		case kAlign_Bottom:				pos.y = parentPos.y + parentExt.y - ext.y; break;
+		case kAlign_RelativeTop:		pos.y = parentPos.y + mPosition.y; break;
+		case kAlign_RelativeBottom:		pos.y = parentPos.y + parentExt.y - ext.y - mPosition.y; break;
+		case kAlign_VertCenter:			pos.y = parentPos.y + (parentExt.y - ext.y)/2; break;
+		default: assert(false);
+		}
+
+		return pos;
 	}
 
-	int32_t GuiElement::GetExtentX()
+	jbsCommon::Vec2i GuiElement::GetParentOffset()
 	{
-		return mExtent[0];
+		return mPosition;
 	}
 
-	int32_t GuiElement::GetExtentY()
+	// get the screen space extent
+	jbsCommon::Vec2i GuiElement::GetExtent()
 	{
-		return mExtent[1];
+		return mExtent;
 	}	
 
-	void GuiElement::OnMouseOver()
+	BoundingBoxi GuiElement::GetBounds()
+	{
+		BoundingBoxi bb;
+			
+		jbsCommon::Vec2i pos = GetPosition();
+		jbsCommon::Vec2i ext = GetExtent();
+
+		bb.mX = pos.x;
+		bb.mY = pos.y;
+		bb.mWidth  = ext.x;
+		bb.mHeight = ext.y;
+		bb.mRotation = 0;		
+		return bb;
+	}
+
+	bool GuiElement::IsVisible()
+	{
+		return mVisible;
+	}
+
+	void GuiElement::OnMouseOver( const jbsCommon::Vec2i& pos )
 	{
 		mState = kState_MouseOver;
 	}
-
+/*
 	bool GuiElement::CheckMouse( int32_t x, int32_t y, bool lClick, bool rClick )
 	{
 		//is the mouse in our bounds?
@@ -209,23 +191,24 @@ namespace Game
 
 			return false;
 		}
-	}
+	}*/
 
-	void GuiElement::OnMouseOut()
+	void GuiElement::OnMouseOut( const jbsCommon::Vec2i& pos )
 	{
 		mState = kState_Normal;
 	}
 
-	void GuiElement::OnClick()
+	void GuiElement::OnClick( const jbsCommon::Vec2i& pos )
 	{
 		mState = kState_Depressed;
 	}
 
-	void GuiElement::OnClickRelease()
+	void GuiElement::OnClickRelease( const jbsCommon::Vec2i& pos )
 	{
 		//mState = kState_Normal;
 	}
 
+/*
 	void GuiElement::BaseBoundsDraw()
 	{
 		ImageX* img;
@@ -236,8 +219,8 @@ namespace Game
 		{
 			GameX.DrawImage( img,GetX(), GetY() );
 		}
-	}
-
+	}*/
+/*
 	ImageX* GuiElement::GetStateImage()
 	{
 		switch( mState )
@@ -248,8 +231,8 @@ namespace Game
 		}
 
 		return NULL;
-	}
-
+	}*/
+/*
 	bool GuiElement::MouseInBounds( int32_t x, int32_t y )
 	{
 		int32_t wx0 = GetX();
@@ -259,123 +242,278 @@ namespace Game
 		int wy1 = wy0 + GetExtentY();
 
 		return x >= wx0 && x < wx1 && y >= wy0 && y < wy1;
-	}
+	}*/
 
-////////////////////////////////////////////////////////////////////////////////////
 
-	GuiIconScroller::ScrollButton::ScrollButton( GuiIconScroller* parent, ScrollDirection d )
+///////////////////////////////////////////////////////////////////////////
+
+	GuiContainer::~GuiContainer()
 	{
-		mDirection = d;
-		mpParent   = parent;
-	}
-
-	void GuiIconScroller::ScrollButton::OnClick()
-	{
-		GuiElement::OnClick();
-
-		switch( mDirection )
+		for( uint32_t i = 0; i < mChildren.size(); ++i )
 		{
-		case kSD_Left:   mpParent->left(); break;
-		case kSD_Right:  mpParent->right(); break;
+			if( mChildren[i] )
+			{
+				delete mChildren[i];
+			}
 		}
+	}
+
+	bool GuiContainer::Draw()
+	{
+		// don't do anything if we are not visible
+		if( !IsVisible() )
+			return true;
+
+		// draw the things we contain
+		std::vector<GuiElement*>::iterator itr = mChildren.begin();
+		std::vector<GuiElement*>::iterator end = mChildren.end();
+		for( ; itr != end; ++itr )
+		{
+			GuiButtonControl* bc = (GuiButtonControl*)(*itr);
+			(*itr)->Draw();
+		}
+		return true;
 	}	
 
-	GuiIconScroller::~GuiIconScroller()
+	bool GuiContainer::DrawBounds()
 	{
-		if( mScroller0 )
-			delete mScroller0;
-
-		if( mScroller1 )
-			delete mScroller1;
-	}
-
-	GuiIconScroller::GuiIconScroller() : mScroller0(NULL)
-									   , mScroller1(NULL)
-									   , mIconOffset(0)
-	{}
-
-	void GuiIconScroller::SetScrollButtons( ScrollButton* e1, ScrollButton* e2 )
-	{
-		mIconOffset = 0;
-		mScroller0 = e1;
-		mScroller1 = e2;
-
-		if( mScroller0 )
-		{
-			mScroller0->SetVisible(true);
-			mScroller0->SetAlignment( GuiElement::kAlign_Top );
-		}
-
-		if( mScroller1 )
-		{
-			mScroller1->SetVisible(true);
-			mScroller1->SetAlignment( GuiElement::kAlign_Top );
-		}
-	}
-
-	bool GuiIconScroller::CheckMouse( int32_t x, int32_t y, bool lClick, bool rClick )
-	{
-		if( GuiElement::CheckMouse( x, y, lClick, rClick ) )
-		{		
-			// Check the scroller icons
-			if( mScroller0 )
-			{
-				mScroller0->CheckMouse( x, y, lClick, rClick );
-			}
-
-			if( mScroller1 )
-			{
-				mScroller1->CheckMouse( x, y, lClick, rClick );
-			}
-
+		if( !IsVisible() )
 			return true;
-		}
 
-		return false;
-	}
-
-	bool GuiIconScroller::Draw()
-	{
-		// draw base
-		BaseBoundsDraw();
-
-		int32_t scroller0w = mScroller0 ? mScroller0->GetExtentX() : 0;
-		int32_t scroller1w = mScroller1 ? mScroller1->GetExtentX() : 0;			
-
-		int32_t oldX    = mPos[0];
-		int32_t extent  = GetExtentX();
-
-		if( mScroller0 )
+		// draw the things we contain
+		std::vector<GuiElement*>::iterator itr = mChildren.begin();
+		std::vector<GuiElement*>::iterator end = mChildren.end();
+		for( ; itr != end; ++itr )
 		{
-			mScroller0->Draw();
-			mPos[0] += mScroller0->GetExtentX();
+			GuiButtonControl* bc = (GuiButtonControl*)(*itr);
+			(*itr)->DrawBounds();
 		}
 
-		// draw children
-		if( mIconOffset < 0 )
-			mIconOffset = 0;
-
-		for( uint32_t i = mIconOffset; i < mChildren.size(); ++i )
-		{
-			if( mPos[0] + mChildren[i]->GetExtentX() < extent )
-			{
-				mChildren[i]->Draw();
-			}
-
-			mPos[0] += mChildren[i]->GetExtentX();
-		}
-
-		if( mScroller1 )
-		{
-			mPos[0] = extent - mScroller1->GetExtentX();
-			mScroller1->Draw();			
-		}
-
-		mPos[0] = oldX;
-	
+		GuiElement::DrawBounds();
 		return true;
 	}
 
+	void GuiContainer::AddChild( GuiElement* child )
+	{
+		if( child )
+		{
+			child->SetParent(this);
+			mChildren.push_back(child);
+		}
+	}
 
+	void GuiContainer::RemoveChild( GuiElement* child )
+	{
+		std::vector<GuiElement*>::iterator itr = mChildren.begin();
+		std::vector<GuiElement*>::iterator end = mChildren.end();
+		for( ; itr != end; ++itr )
+		{
+			if( (*itr) == child )
+			{
+				mChildren.erase( itr );
+				break;
+			}
+		}
+	}
+
+	void GuiContainer::OnMouseOver( const jbsCommon::Vec2i& pos )
+	{
+		GuiElement::OnMouseOver(pos);
+
+		std::vector<GuiElement*>::iterator itr = mChildren.begin();		
+		for( ; itr != mChildren.end(); ++itr )
+		{
+			if( (*itr)->IsVisible() && (*itr)->GetBounds().Collide(pos.x, pos.y) )
+			{
+				(*itr)->OnMouseOver(pos);
+			}			
+		}
+	}    
+
+	void GuiContainer::OnMouseOut( const jbsCommon::Vec2i& pos )
+	{
+		GuiElement::OnMouseOut( pos );
+
+		std::vector<GuiElement*>::iterator itr = mChildren.begin();		
+		for( ; itr != mChildren.end(); ++itr )
+		{
+			if( (*itr)->IsVisible() )
+			{
+				(*itr)->OnMouseOut(pos);
+			}			
+		}
+	}
+
+	void GuiContainer::OnClick( const jbsCommon::Vec2i& pos )
+	{
+		GuiElement::OnClick(pos);
+
+		std::vector<GuiElement*>::iterator itr = mChildren.begin();		
+		for( ; itr != mChildren.end(); ++itr )
+		{
+			if( (*itr)->IsVisible() && (*itr)->GetBounds().Collide(pos.x, pos.y) )
+			{
+				(*itr)->OnClick(pos);
+			}			
+		}
+	}
+
+	void GuiContainer::OnClickRelease( const jbsCommon::Vec2i& pos )
+	{
+		GuiElement::OnClickRelease(pos);
+
+		std::vector<GuiElement*>::iterator itr = mChildren.begin();		
+		for( ; itr != mChildren.end(); ++itr )
+		{
+			if( (*itr)->IsVisible() && (*itr)->GetBounds().Collide(pos.x, pos.y) )
+			{
+				(*itr)->OnClickRelease(pos);
+			}			
+		}
+	}		
+
+/////////////////////////////////////////////////////////////////////////////////
+
+	GuiListContainer::GuiListContainer() : mSpacing(5)
+	{}		
+
+	void GuiListContainer::AddChild( GuiElement* child )
+	{
+		if( mChildren.size() > 0 )
+		{
+			jbsCommon::Vec2i backPos  = mChildren.back()->GetParentOffset();
+			jbsCommon::Vec2i childPos = child->GetParentOffset();
+
+			childPos.y = backPos.y + mChildren.back()->GetExtent().y + mSpacing;
+			child->SetPosition(childPos);
+		}
+		else
+		{
+			jbsCommon::Vec2i childPos = child->GetParentOffset();
+			child->SetPosition( jbsCommon::Vec2i( childPos.x, 0 ) );
+		}			
+
+		GuiContainer::AddChild(child);		
+	}
+
+	///
+	/// Basically we want to find the child in the list.
+	/// When we do that, we need to get it's height and 
+	/// default spacing from every element below it to
+	/// remove the elements up
+	///
+	void GuiListContainer::RemoveChild( GuiElement* child )
+	{
+		bool found = false;
+		int32_t foundHeight = 0;
+
+		std::vector<GuiElement*>::iterator itrFound;
+		std::vector<GuiElement*>::iterator itr = mChildren.begin();
+		std::vector<GuiElement*>::iterator end = mChildren.end();
+
+		for( ; itr != end; ++itr )
+		{
+			if( *itr == child )
+			{
+				found = true;
+				foundHeight = (*itr)->GetExtent().y;
+				itrFound = itr;
+			}
+
+			if(found)
+			{
+				jbsCommon::Vec2i pos = (*itr)->GetParentOffset();
+				pos.y -= foundHeight + mSpacing;
+				(*itr)->SetPosition(pos);
+			}
+		}
+
+		if(found)
+		{
+			mChildren.erase(itrFound);
+		}
+	}
+    
+	void GuiListContainer::SetSpacing( uint32_t spacing )
+	{
+		mSpacing = spacing;
+	}
+	
+	uint32_t GuiListContainer::GetSpacing()
+	{
+		return mSpacing;
+	}
+
+/////////////////////////////////////////////////////////////////////////////////
+
+	GuiImageControl::GuiImageControl() : mpImage(NULL)
+	{}	
+
+	bool GuiImageControl::Draw()
+	{
+		jbsCommon::Vec2i pos = GetPosition();
+		GameX.DrawImage( mpImage, pos.x, pos.y );
+		return true;
+	}
+
+	void GuiImageControl::SetImage( ImageX* img )
+	{
+		mpImage = img;
+	}
+
+	void GuiImageControl::SetExtentFromImages()
+	{
+		if( mpImage )
+		{
+			jbsCommon::Vec2i ext( mpImage->GetWidth(), mpImage->GetHeight() );
+			SetExtent(ext);
+		}
+	}
+
+	ImageX* GuiImageControl::GetImage()
+	{
+		return mpImage;
+	}
+
+///////////////////////////////////////////////////////////////////////////////
+
+	GuiButtonControl::GuiButtonControl() : mpNormalImage(NULL),
+										   mpDepressedImage(NULL),
+										   mpOverImage(NULL)
+	{}
+
+	bool GuiButtonControl::Draw()
+	{
+		ImageX* curImage = NULL;
+		switch( GetState() )
+		{
+		case GuiElement::kState_Normal:    curImage = mpNormalImage; break;
+		case GuiElement::kState_Depressed: curImage = mpDepressedImage; break;
+		case GuiElement::kState_MouseOver: curImage = mpOverImage; break;
+		}
+
+		if( curImage )
+		{
+			jbsCommon::Vec2i pos = GetPosition();
+			GameX.DrawImage( curImage, pos.x, pos.y );
+		}
+		return true;
+	}
+
+	void GuiButtonControl::SetImages( ImageX* normal, ImageX* depressed, ImageX* mouseOver )
+	{
+		mpNormalImage = normal;
+		mpDepressedImage = depressed;
+		mpOverImage = mouseOver;
+	}
+
+	void GuiButtonControl::SetExtentFromImages()
+	{
+		if( mpNormalImage )
+		{
+			jbsCommon::Vec2i ext( mpNormalImage->GetWidth(), mpNormalImage->GetHeight() );
+			SetExtent(ext);
+		}
+	}
 	
 }; //end Game

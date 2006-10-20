@@ -10,6 +10,7 @@
 
 #include "StateMachine.h"
 #include "Types.h"
+#include "Gui.h"
 
 #include <vector>
 
@@ -22,7 +23,7 @@ namespace Game
 {
 	class Ball;
 	class Beam;
-
+/*
 	class GuiElement
 	{
 	public:
@@ -35,7 +36,7 @@ namespace Game
 
 		ImageX*		mpImg;
 		int32_t		mBounds[4];
-	};
+	};*/
 
 	class State_EditMode : public State
 	{

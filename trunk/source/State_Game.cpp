@@ -32,6 +32,7 @@ namespace Game
 	void State_Game::Enter()
 	{
 		mBackground = NULL;	
+		mpMusic		= NULL;
 		mLevelEndTime = -1.0f;		
 
 		// load the save file
@@ -69,8 +70,15 @@ namespace Game
 		GameSaveFile::Export( kSaveFile, mSaveFile );
 
 #if PLAY_MUSIC
-		if( GameX.IsMusicPlaying( &mMusic ) )
-			GameX.StopMusic( &mMusic );
+	
+		if( mpMusic )
+		{	
+			//GameX.StopMusic( mpMusic );			
+
+			delete mpMusic;
+			mpMusic = NULL;
+		}
+
 #endif
 	}
 
@@ -256,9 +264,17 @@ namespace Game
 #if PLAY_MUSIC
 		// load and play the music
 		if( level.mMusic != "" )
-		{			
-			if( mMusic.Load( (char*)( std::string( "audio/" ) + level.mMusic ).c_str() ) )
-				GameX.PlayMusic( &mMusic );
+		{				
+			mpMusic = new MusicX();
+			if( !mpMusic->Load( (char*)( std::string( "audio/" ) + level.mMusic ).c_str() ) )
+			{
+				delete mpMusic;
+				mpMusic = NULL;
+			}
+			else
+			{			
+				GameX.PlayMusic( mpMusic );
+			}
 		}
 #endif
 

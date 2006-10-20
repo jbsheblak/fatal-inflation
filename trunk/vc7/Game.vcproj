@@ -221,6 +221,12 @@
 			</File>
 		</Filter>
 		<File
+			RelativePath="..\source\Action.cpp">
+		</File>
+		<File
+			RelativePath="..\source\Action.h">
+		</File>
+		<File
 			RelativePath="..\source\Algorithms.cpp">
 		</File>
 		<File
@@ -276,6 +282,9 @@
 		</File>
 		<File
 			RelativePath="..\source\Timer.h">
+		</File>
+		<File
+			RelativePath="..\source\Vector.h">
 		</File>
 	</Files>
 	<Globals>

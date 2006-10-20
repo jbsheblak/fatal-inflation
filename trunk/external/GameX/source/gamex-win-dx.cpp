@@ -5988,6 +5988,12 @@ void WindowsDX::StopMusic (MusicX * music, float seconds)
 // target_factor of 0.0f is fade to silence, 0.5f is fade to half master volume, 1.0f is no change, 1.27f is fade to max amplified
 void WindowsDX::VolumeFadeMusic(MusicX * music, float volume_factor, float seconds)
 {
+	if( music == NULL )
+		music = current_music;
+
+	if( !music )
+		return;
+
 	switch(music->format) {
 	case MUSIC_TYPE_MIDI:
 		if(seconds < 0.05f) seconds = 0.05f;
