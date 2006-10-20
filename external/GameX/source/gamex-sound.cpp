@@ -289,9 +289,9 @@ MusicX::~MusicX()
 	if(GameX.GetDMP()) { // if we haven't already released all of DirectMusic
 		if(GameX.IsMusicPlaying(this)) {
 			GameX.PlayMusic(NULL); // stops music and sets current music to NULL
-			#ifdef _DEBUG
-				GameX.WarningDialog("A MusicX object was deleted while it was still playing. Consider replacing code like:\n\n  MusicX m;\n  m.Load(\"file.mp3\");\n  GameX.PlayMusic(&m);\n\nwith code like:\n\n  MusicX* m = new MusicX;\n  m->Load(\"file.mp3\");\n  GameX.PlayMusic(m);");
-			#endif
+			//#ifdef _DEBUG
+			//	GameX.WarningDialog("A MusicX object was deleted while it was still playing. Consider replacing code like:\n\n  MusicX m;\n  m.Load(\"file.mp3\");\n  GameX.PlayMusic(&m);\n\nwith code like:\n\n  MusicX* m = new MusicX;\n  m->Load(\"file.mp3\");\n  GameX.PlayMusic(m);");
+			//#endif
 		}
 		Release();
 	}

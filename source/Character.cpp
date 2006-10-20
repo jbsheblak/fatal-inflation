@@ -51,11 +51,20 @@ namespace Game
 		mPos[0] += dx;
 		mPos[1] += dy;
 
-		if( mPos[0] < ( mBalloonImg->GetWidth()/2 ) )
-			mPos[0] = mBalloonImg->GetWidth()/2;
+		// This assumes that the balloon is spherical!
 
-		if( mPos[0] > (int32_t)( kWindowWidth - mBalloonImg->GetWidth()/2 ) )
-			mPos[0] = (int32_t)( kWindowWidth - mBalloonImg->GetWidth()/2 );
+		if( mPos[0] < ( mBalloonInflation * mBalloonImg->GetWidth()/2 ) )
+			mPos[0] = (int32_t)(mBalloonInflation * mBalloonImg->GetWidth()/2);
+
+		if( mPos[0] > (int32_t)( kWindowWidth - mBalloonInflation * mBalloonImg->GetWidth()/2 ) )
+			mPos[0] = (int32_t)( kWindowWidth - mBalloonInflation * mBalloonImg->GetWidth()/2 );
+
+		if( mPos[1] < ( mBalloonInflation * mBalloonImg->GetHeight()/2 ) )
+			mPos[1] = (int32_t)( mBalloonInflation * mBalloonImg->GetHeight()/2 );
+
+		if( mPos[1] > (int32_t)( kWindowHeight - mBalloonInflation * mBalloonImg->GetHeight()/2 ) ) 
+			mPos[1] = (int32_t)( kWindowHeight - mBalloonInflation * mBalloonImg->GetHeight()/2 );
+
 
 		UpdateBBox();
 	}
